@@ -7,14 +7,14 @@
           <template #content>
             <div class="flex flex-col">
               <!-- Main Image -->
-              <div class="bg-white rounded-xl shadow mb-6 flex items-center justify-center min-h-[350px]">
+              <div class="bg-white rounded-xl shadow mb-6 flex justify-center min-h-[350px]">
                 <img
                   v-if="mainImage"
                   :src="getOptimizedImage(mainImage.image)"
                   :alt="product.name"
                   loading="lazy"
-                  class="rounded-xl max-h-[400px] object-contain transition-all duration-300"
-                  style="max-width: 100%;"
+                  class="rounded-xl object-contain w-full h-auto max-h-[400px]"
+                  style="display: block;"
                 />
               </div>
 
@@ -132,13 +132,22 @@
                   />
                 </div>
 
-                <Button
-                  :label="product.stock === 0 ? 'Out of Stock' : 'Add to Cart'"
-                  :disabled="product.stock === 0"
-                  class="w-full sm:w-auto px-6 py-3 rounded-full text-lg font-medium"
-                  :class="product.stock === 0 ? 'p-button-secondary' : 'p-button-warning'"
-                  @click="addToCart"
-                />
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <Button
+                    :label="product.stock === 0 ? 'Out of Stock' : 'Add to Cart'"
+                    :disabled="product.stock === 0"
+                    class="w-full sm:w-auto px-6 py-3 rounded-full text-lg font-medium"
+                    :class="product.stock === 0 ? 'p-button-secondary' : 'p-button-warning'"
+                    @click="addToCart"
+                  />
+                  <Button
+                    v-if="product.stock > 0"
+                    label="Buy Now"
+                    :disabled="product.stock === 0"
+                    class="w-full sm:w-auto px-6 py-3 rounded-full text-lg font-medium p-button-success"
+                    @click="buyNow"
+                  />
+                </div>
               </div>
             </div>
           </template>
@@ -229,6 +238,41 @@ const addToCart = () => {
   cartStore.addItem(item)
   toast.success(`${props.product.name} x${quantity.value} added to cart`)
   router.push({ name: 'products' })
+}
+
+const buyNow = () => {
+  if (quantity.value < 1) {
+    toast.warning('Quantity must be at least 1')
+    return
+  }
+
+  if(quantity.value > props.product.stock) {
+    toast.error(`Only ${props.product.stock} items in stock`)
+    return
+  }
+  const existing = cartStore.items.find(i => i.productId === props.product.id)
+  const currentQty = existing?.quantity || 0
+  const newTotalQty = currentQty + quantity.value
+
+  if (newTotalQty > props.product.stock) {
+    toast.error(`You already have ${currentQty} in cart. Only ${props.product.stock} in stock.`)
+    return
+  }
+
+  const item = {
+    productId: props.product.id,
+    stock: props.product.stock,
+    name: props.product.name,
+    price: props.product.discount_price || props.product.price,
+    image: mainImage.value?.image || '',
+    color: selectedColor.value,
+    size: props.product.size,
+    quantity: quantity.value,
+  }
+
+  cartStore.addItem(item)
+  toast.success(`${props.product.name} x${quantity.value} added to cart`)
+  router.push({ name: 'cart' }) // Redirect to cart page
 }
 
 function getOptimizedImage(url) {

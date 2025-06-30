@@ -51,30 +51,41 @@
           class="flex flex-col sm:flex-row sm:items-center gap-4 border-b pb-4"
         >
           <img :src="item.image" :alt="item.name" class="w-24 h-24 rounded-xl object-cover" />
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-800 flex items-center justify-between">
-              {{ item.name }}
+          <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800">
+                {{ item.name }}
+                <span v-if="item.size" class="ml-2 text-sm text-gray-500 font-normal">| Size: {{ item.size }}</span>
+                <span v-if="item.color" class="ml-2 text-sm text-gray-500 font-normal">| Color: {{ item.color }}</span>
+              </h3>
+              <div class="flex items-center gap-2 mt-1">
+                <label class="text-gray-700 font-medium">Qty:</label>
+                <input
+                  type="number"
+                  :value="item.quantity"
+                  disabled
+                  class="w-16 px-2 py-1 border border-gray-300 rounded-md bg-gray-100 text-gray-700 cursor-not-allowed"
+                />
+              </div>
+            </div>
+            <!-- Price details horizontally aligned -->
+            <div class="flex flex-row items-center gap-8 min-w-[320px] justify-end">
+              <div class="flex flex-col items-center">
+                <span class="text-gray-600 text-xs">Unit Price</span>
+                <span class="text-orange-500 font-semibold">{{ item.price }} DA</span>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-gray-600 text-xs">Subtotal</span>
+                <span class="font-bold text-gray-800">{{ item.price * item.quantity }} DA</span>
+              </div>
               <button
                 @click="confirmRemove(item.productId)"
-                class="text-red-500 hover:text-red-700 ml-4"
+                class="text-red-500 hover:text-red-700 ml-4 self-start sm:self-center"
                 title="Remove"
               >
                 ✕
               </button>
-            </h3>
-            <div class="flex items-center gap-2 mt-1">
-              <label class="text-gray-700 font-medium">Qty:</label>
-              <input
-                type="number"
-                :value="item.quantity"
-                disabled
-                class="w-16 px-2 py-1 border border-gray-300 rounded-md bg-gray-100 text-gray-700 cursor-not-allowed"
-              />
             </div>
-            <p class="text-orange-500 font-medium mt-1">{{ item.price }} DA each</p>
-            <p class="text-gray-700 mt-1">
-              Subtotal: <span class="font-semibold">{{ item.price * item.quantity }} DA</span>
-            </p>
           </div>
         </div>
 
@@ -89,10 +100,21 @@
           </RouterLink>
         </div>
 
-        <!-- Total -->
-        <div v-if="cartStore.items.length > 0" class="flex justify-end">
-          <div class="text-xl font-bold text-gray-700">
-            Total: <span class="text-orange-500">{{ totalPrice }} DA</span>
+        <!-- Cart Summary -->
+        <div v-if="cartStore.items.length > 0" class="flex flex-col items-end space-y-1 mt-6">
+          <div class="bg-gray-50 rounded-xl p-4 w-full sm:w-96 shadow space-y-2">
+            <div class="flex justify-between text-gray-700 text-base">
+              <span>Products Total:</span>
+              <span class="font-semibold text-orange-500">{{ totalPrice }} DA</span>
+            </div>
+            <div v-if="selectedState" class="flex justify-between text-gray-700 text-base">
+              <span>Delivery ({{ deliveryType === 'home' ? 'Home' : 'Bureau' }}):</span>
+              <span class="font-semibold text-orange-500">{{ deliveryFees }} DA</span>
+            </div>
+            <div v-if="selectedState" class="flex justify-between text-gray-800 text-lg font-bold border-t pt-2">
+              <span>Grand Total:</span>
+              <span class="text-orange-500">{{ totalPrice + deliveryFees }} DA</span>
+            </div>
           </div>
         </div>
       </div>
@@ -158,11 +180,13 @@
           <Message v-if="errors.selectedState" severity="error" class="mt-2 animate-fade-in">
             {{ errors.selectedState }}
           </Message>
-
-
-          <Message v-if="errors.selectedCommune" severity="error" class="mt-2 animate-fade-in">
-            {{ errors.selectedCommune }}
-          </Message>
+          <div v-if="selectedState" class="text-sm text-gray-500 mt-1">
+            Delivery price for {{ selectedState.name }} 
+            <span class="font-semibold">
+              ({{ deliveryType === 'home' ? 'Home' : 'Bureau' }})
+            </span>
+            : <span class="text-orange-500">{{ deliveryFees }} DA</span>
+          </div>
         </div>
 
         <div class="pt-4">
@@ -177,6 +201,7 @@
     </section>
   </section>
 </template>
+
 <script setup>
 import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
@@ -203,7 +228,6 @@ const name = ref('')
 const phone = ref('')
 const deliveryType = ref('home')
 const selectedState = ref(null)
-const selectedCommune = ref(null)
 const submitting = ref(false)
 const orderSuccess = ref(false) // <-- Add this
 
@@ -282,9 +306,8 @@ async function submitOrder() {
       delivery_type: deliveryType.value === 'home' ? 'A Domicile' : 'Bureau',
       delivery_fees: deliveryFees.value,
       wilaya: selectedState.value?.name,
-      commune: deliveryType.value === 'home' ? selectedCommune.value?.id : null,
       items: cartStore.items.map(i => ({
-        product: i.productId,
+        product: i.productId, // No variant, just productId
         quantity: i.quantity
       }))
     }

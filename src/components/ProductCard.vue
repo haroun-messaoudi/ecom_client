@@ -1,16 +1,16 @@
 <template>
   <div
-    class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden w-full max-w-xs border border-gray-100 hover:border-orange-400 flex flex-col h-60 relative"
+    class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden w-full max-w-xs border border-gray-100 hover:border-orange-400 flex flex-col h-76 relative"
   >
     <!-- Product Image -->
-    <div class="relative w-full h-36 overflow-hidden group">
+    <div
+      class="relative w-full flex-1 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] overflow-hidden group flex items-center justify-center"
+    >
       <img
         :src="getOptimizedImage(product.image)"
         :alt="product.name"
         loading="lazy"
-        width="300"
-        height="180"
-        class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+        class="w-full h-[80%] object-contain group-hover:scale-105 transition-transform duration-300 max-w-full max-h-full"
         :class="{ 'opacity-60': product.stock === 0 }"
       />
 
@@ -81,7 +81,7 @@ function getOptimizedImage(url) {
   if (!url.includes('res.cloudinary.com')) return url
 
   const parts = url.split('/upload/')
-  return `${parts[0]}/upload/f_auto,q_auto,w_300,h_180,c_pad,b_white/${parts[1]}`
+  return `${parts[0]}/upload/f_auto,q_auto,w_600,h_400,c_fit/${parts[1]}`
 }
 
 
