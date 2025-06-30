@@ -148,7 +148,7 @@
           <!-- Wilaya Dropdown -->
           <Dropdown
             v-model="selectedState"
-            :options="states"
+            :options="wilaya"
             :class="{'p-invalid': errors.selectedState}"
             optionLabel="name"
             placeholder="Select Wilaya"
@@ -159,17 +159,7 @@
             {{ errors.selectedState }}
           </Message>
 
-          <!-- Commune Dropdown -->
-          <Dropdown
-            v-model="selectedCommune"
-            :options="communes[selectedState?.code] || []"
-            :class="{'p-invalid': errors.selectedCommune}"
-            optionLabel="name"
-            placeholder="Select Commune"
-            class="w-full sm:w-64 mt-4 mb-2"
-            :disabled="!selectedState || deliveryType !== 'home'"
-            filter
-          />
+
           <Message v-if="errors.selectedCommune" severity="error" class="mt-2 animate-fade-in">
             {{ errors.selectedCommune }}
           </Message>
@@ -198,6 +188,8 @@ import { RouterLink, useRouter } from 'vue-router'
 import InputText from 'primevue/inputtext'
 import axios from 'axios'
 import Message from 'primevue/message'
+import { yalidinePrices } from '@/assets/delivery/yalidine_prices'
+
 
 // ✅ Toastify
 import { toast } from 'vue3-toastify'
@@ -219,20 +211,15 @@ const errors = ref({
   name: '',
   phone: '',
   selectedState: '',
-  selectedCommune: ''
 })
 
-const states = [
-  { name: 'Algiers', code: 'ALG', id: 1 },
-  { name: 'Oran', code: 'ORN', id: 2 },
-  { name: 'Constantine', code: 'CON', id: 3 }
-]
+const wilaya = Object.entries(yalidinePrices).map(([name, data]) => ({
+  name, 
+  domicile: data.domicile,
+  bureau: data.bureau,
+  id: data.code
+}))
 
-const communes = {
-  ALG: [ { name: 'Bab El Oued', id: 101 }, { name: 'Hydra', id: 102 }, { name: 'El Harrach', id: 103 } ],
-  ORN: [ { name: 'Bir El Djir', id: 201 }, { name: 'Es Senia', id: 202 } ],
-  CON: [ { name: 'El Khroub', id: 301 }, { name: 'Ali Mendjeli', id: 302 } ]
-}
 
 const totalPrice = computed(() => cartStore.totalPrice)
 
@@ -276,12 +263,15 @@ function validateForm() {
     errors.value.selectedState = 'Wilaya is required'
     valid = false
   }
-  if (deliveryType.value === 'home' && !selectedCommune.value) {
-    errors.value.selectedCommune = 'Commune is required'
-    valid = false
-  }
   return valid
 }
+
+const deliveryFees = computed(() => {
+        if (!selectedState.value) return 0
+        return deliveryType.value === 'home'
+          ? selectedState.value.domicile
+          : selectedState.value.bureau
+      })
 
 async function submitOrder() {
   submitting.value = true
@@ -290,8 +280,8 @@ async function submitOrder() {
       costumer_name: name.value,
       costumer_phone: phone.value,
       delivery_type: deliveryType.value === 'home' ? 'A Domicile' : 'Bureau',
-      delivery_fees: deliveryType.value === 'home' ? 500 : 0,
-      wilaya: selectedState.value?.id,
+      delivery_fees: deliveryFees.value,
+      wilaya: selectedState.value?.name,
       commune: deliveryType.value === 'home' ? selectedCommune.value?.id : null,
       items: cartStore.items.map(i => ({
         product: i.productId,
