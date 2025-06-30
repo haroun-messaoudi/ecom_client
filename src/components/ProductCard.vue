@@ -1,18 +1,20 @@
 <template>
   <div
-    class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden w-full max-w-xs border border-gray-100 hover:border-orange-400 flex flex-col h-76 relative"
+    class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow overflow-hidden w-full max-w-xs border border-gray-100 hover:border-orange-400 flex flex-col h-80 relative"
   >
     <!-- Product Image -->
     <div
       class="relative w-full flex-1 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] overflow-hidden group flex items-center justify-center"
     >
       <img
-        :src="getOptimizedImage(product.image)"
-        :alt="product.name"
-        loading="lazy"
-        class="w-full h-[80%] object-contain group-hover:scale-105 transition-transform duration-300 max-w-full max-h-full"
-        :class="{ 'opacity-60': product.stock === 0 }"
-      />
+      :src="getOptimizedImage(product.image)"
+      :alt="product.name"
+      loading="lazy"
+      width="600"
+      height="400"
+      class="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300 max-w-full max-h-full"
+      :class="{ 'opacity-60': product.stock === 0 }"
+    />
 
       <!-- "Out of Stock" Badge -->
       <span
