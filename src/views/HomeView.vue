@@ -188,6 +188,34 @@ watch(
         <ProductList :products="newProducts" :loading="loadingNewProducts" />
       </div>
     </section>
+        <footer class="mt-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white shadow-inner border-t border-gray-700">
+      <div class="max-w-screen-xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        
+        <!-- Social Links -->
+        <div class="flex items-center gap-6">
+          <a href="https://instagram.com/yourstore" target="_blank" rel="noopener" aria-label="Instagram" class="hover:text-orange-500 transition">
+            <!-- Instagram SVG -->
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="17" cy="7" r="1.2" fill="currentColor"/>
+            </svg>
+          </a>
+          <a href="https://tiktok.com/@yourstore" target="_blank" rel="noopener" aria-label="TikTok" class="hover:text-orange-500 transition">
+            <!-- TikTok SVG -->
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.5 2v2.5a3.5 3.5 0 0 0 3.5 3.5h1V10h-1a6 6 0 0 1-6-6V2h2.5zM9 8a6 6 0 1 0 6 6h-2a4 4 0 1 1-4-4V8z"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Contact & Copyright -->
+        <div class="text-center md:text-right text-sm space-y-1">
+          <p>Call us: <a href="tel:+1234567890" class="underline hover:text-orange-500 transition">+1 234 567 890</a></p>
+          <p class="text-gray-400 text-xs">&copy; {{ new Date().getFullYear() }} Ecom Shoes. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 

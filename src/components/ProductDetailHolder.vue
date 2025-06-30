@@ -122,7 +122,6 @@
                     id="quantity"
                     v-model="quantity"
                     :min="1"
-                    :max="product.stock"
                     showButtons
                     buttonLayout="horizontal"
                     decrementButtonClass="p-button-text"
@@ -146,6 +145,7 @@
         </Card>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -202,6 +202,10 @@ const addToCart = () => {
     return
   }
 
+  if(quantity.value > props.product.stock) {
+    toast.error(`Only ${props.product.stock} items in stock`)
+    return
+  }
   const existing = cartStore.items.find(i => i.productId === props.product.id)
   const currentQty = existing?.quantity || 0
   const newTotalQty = currentQty + quantity.value
