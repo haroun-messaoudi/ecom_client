@@ -61,19 +61,20 @@ function getOptimizedImage(url) {
   if (url.includes('res.cloudinary.com')) {
     const parts = url.split('/upload/');
     if (parts.length === 2) {
-      return ${bunnyBase}/image/upload/${parts[1]};
+      return `${bunnyBase}/image/upload/${parts[1]}`;
     }
     return url; // fallback if unexpected
   }
 
   // ✅ Proxy backend/static images via BunnyCDN
   if (url.startsWith('http')) {
-    return ${bunnyBase}/uploads/${encodeURIComponent(url)};
+    return `${bunnyBase}/uploads/${encodeURIComponent(url)}`;
   }
 
   // ✅ Fallback: relative URLs
-  return ${bunnyBase}${url.startsWith('/') ? '' : '/'}${url};
+  return `${bunnyBase}${url.startsWith('/') ? '' : '/'}${url}`;
 }
+
 
 function showAllRecommended() {
   router.push({ name: 'products' })
